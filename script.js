@@ -6,28 +6,27 @@ AOS.init({
     mirror: false
 });
 
-// Dark Mode Toggle
-const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-const currentTheme = localStorage.getItem('theme');
+// Theme Switcher
+const themeSwitch = document.querySelector('#checkbox');
+const body = document.body;
 
-if (currentTheme) {
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    if (currentTheme === 'dark') {
-        toggleSwitch.checked = true;
-    }
+// Check for saved theme preference
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    body.setAttribute('data-theme', savedTheme);
+    themeSwitch.checked = savedTheme === 'dark';
 }
 
-function switchTheme(e) {
-    if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+// Theme switch handler
+themeSwitch.addEventListener('change', () => {
+    if (themeSwitch.checked) {
+        body.setAttribute('data-theme', 'dark');
         localStorage.setItem('theme', 'dark');
     } else {
-        document.documentElement.setAttribute('data-theme', 'light');
+        body.setAttribute('data-theme', 'light');
         localStorage.setItem('theme', 'light');
     }
-}
-
-toggleSwitch.addEventListener('change', switchTheme);
+});
 
 // Smooth Scrolling for Navigation Links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -39,6 +38,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 behavior: 'smooth',
                 block: 'start'
             });
+            // Close mobile menu after clicking
+            navLinks.classList.remove('active');
+            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
         }
     });
 });
@@ -69,21 +72,31 @@ window.addEventListener('scroll', () => {
 
 // Skill Level Animation
 const skillLevels = document.querySelectorAll('.skill-level');
-const observerOptions = {
-    threshold: 0.5
+
+const animateSkillLevels = () => {
+    skillLevels.forEach(skill => {
+        const level = skill.style.getPropertyValue('--level');
+        skill.style.width = '0';
+        setTimeout(() => {
+            skill.style.width = level;
+        }, 200);
+    });
 };
 
+// Intersection Observer for skill animation
+const skillsSection = document.querySelector('.skills');
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            const level = entry.target.getAttribute('data-level');
-            entry.target.style.setProperty('--level', `${level}%`);
+            animateSkillLevels();
             observer.unobserve(entry.target);
         }
     });
-}, observerOptions);
+}, { threshold: 0.5 });
 
-skillLevels.forEach(skill => observer.observe(skill));
+if (skillsSection) {
+    observer.observe(skillsSection);
+}
 
 // Project Card Hover Effect
 const projectCards = document.querySelectorAll('.project-card');
@@ -99,47 +112,37 @@ projectCards.forEach(card => {
 });
 
 // Form Validation and Submission
-const contactForm = document.querySelector('.contact-form');
+const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     // Basic form validation
-    const formData = new FormData(contactForm);
-    let isValid = true;
-    
-    formData.forEach((value, key) => {
-        if (!value.trim()) {
-            isValid = false;
-            const input = contactForm.querySelector(`[name="${key}"]`);
-            input.classList.add('error');
-        }
-    });
-    
-    if (isValid) {
-        // Here you would typically send the form data to a server
-        // For now, we'll just show a success message
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.textContent = 'Message sent successfully!';
-        contactForm.appendChild(successMessage);
-        
-        // Clear form
-        contactForm.reset();
-        
-        // Remove success message after 3 seconds
-        setTimeout(() => {
-            successMessage.remove();
-        }, 3000);
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const subject = document.getElementById('subject').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !subject || !message) {
+        alert('Please fill in all fields');
+        return;
     }
+
+    if (!isValidEmail(email)) {
+        alert('Please enter a valid email address');
+        return;
+    }
+
+    // Here you would typically send the form data to your backend
+    // For now, we'll just show a success message
+    alert('Thank you for your message! I will get back to you soon.');
+    contactForm.reset();
 });
 
-// Remove error class on input
-contactForm.querySelectorAll('input, textarea').forEach(input => {
-    input.addEventListener('input', () => {
-        input.classList.remove('error');
-    });
-});
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 // Typing Animation for Hero Section
 const heroTitle = document.querySelector('.hero h1');
@@ -179,47 +182,43 @@ window.addEventListener('mousemove', (e) => {
     heroImage.style.transform = `translate(${xPos}px, ${yPos}px)`;
 });
 
-// Add active class to current navigation item
-const sections = document.querySelectorAll('section');
-const navLinks = document.querySelectorAll('.nav-links a');
-
-window.addEventListener('scroll', () => {
-    let current = '';
-    
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        
-        if (pageYOffset >= sectionTop - 200) {
-            current = section.getAttribute('id');
-        }
-    });
-    
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href').slice(1) === current) {
-            link.classList.add('active');
-        }
-    });
-});
-
-// Mobile Menu Toggle
+// Mobile Navigation
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const navLinks = document.querySelector('.nav-links');
 
 mobileMenuBtn.addEventListener('click', () => {
     navLinks.classList.toggle('active');
+    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+    mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
 });
 
 // Close mobile menu when clicking outside
 document.addEventListener('click', (e) => {
     if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
         navLinks.classList.remove('active');
+        mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+        mobileMenuBtn.querySelector('i').classList.remove('fa-times');
     }
 });
 
-// Close mobile menu when clicking a link
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
+// Active Navigation Link
+const sections = document.querySelectorAll('section');
+const navItems = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href').slice(1) === current) {
+            item.classList.add('active');
+        }
     });
 }); 
