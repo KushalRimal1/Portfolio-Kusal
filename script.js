@@ -1,4 +1,4 @@
-// Initialize AOS (Animate On Scroll)
+// Initialize AOS
 AOS.init({
     duration: 800,
     easing: 'ease-in-out',
@@ -9,26 +9,80 @@ AOS.init({
 // Theme Switcher
 const themeSwitch = document.querySelector('#checkbox');
 const body = document.body;
+const themeIcon = document.querySelector('.theme-switch-wrapper i');
 
 // Check for saved theme preference
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
     body.setAttribute('data-theme', savedTheme);
     themeSwitch.checked = savedTheme === 'dark';
+    updateThemeIcon(savedTheme);
 }
 
 // Theme switch handler
-themeSwitch.addEventListener('change', () => {
-    if (themeSwitch.checked) {
-        body.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
+function updateThemeIcon(theme) {
+    if (theme === 'dark') {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
     } else {
-        body.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+}
+
+// Theme switch change event
+themeSwitch.addEventListener('change', () => {
+    const theme = themeSwitch.checked ? 'dark' : 'light';
+    body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    updateThemeIcon(theme);
+});
+
+// Add touch event listeners for mobile
+themeSwitch.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Prevent double-firing on mobile
+});
+
+// Check system preference for initial theme
+if (!savedTheme) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+        body.setAttribute('data-theme', 'dark');
+        themeSwitch.checked = true;
+        updateThemeIcon('dark');
+    }
+}
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+        const theme = e.matches ? 'dark' : 'light';
+        body.setAttribute('data-theme', theme);
+        themeSwitch.checked = e.matches;
+        updateThemeIcon(theme);
     }
 });
 
-// Smooth Scrolling for Navigation Links
+// Mobile Navigation
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const navLinks = document.querySelector('.nav-links');
+
+mobileMenuBtn.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+    mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        navLinks.classList.remove('active');
+        mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+        mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+    }
+});
+
+// Smooth Scrolling
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -46,29 +100,60 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Navbar Scroll Effect
-const header = document.querySelector('header');
-let lastScroll = 0;
+// Active Navigation Link
+const sections = document.querySelectorAll('section');
+const navItems = document.querySelectorAll('.nav-links a');
 
 window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll <= 0) {
-        header.classList.remove('scroll-up');
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute('id');
+        }
+    });
+
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href').slice(1) === current) {
+            item.classList.add('active');
+        }
+    });
+});
+
+// Form Validation and Submission
+const contactForm = document.getElementById('contactForm');
+
+contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Basic form validation
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const subject = document.getElementById('subject').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !subject || !message) {
+        alert('Please fill in all fields');
         return;
     }
-    
-    if (currentScroll > lastScroll && !header.classList.contains('scroll-down')) {
-        // Scroll Down
-        header.classList.remove('scroll-up');
-        header.classList.add('scroll-down');
-    } else if (currentScroll < lastScroll && header.classList.contains('scroll-down')) {
-        // Scroll Up
-        header.classList.remove('scroll-down');
-        header.classList.add('scroll-up');
+
+    if (!isValidEmail(email)) {
+        alert('Please enter a valid email address');
+        return;
     }
-    lastScroll = currentScroll;
+
+    // Here you would typically send the form data to your backend
+    // For now, we'll just show a success message
+    alert('Thank you for your message! I will get back to you soon.');
+    contactForm.reset();
 });
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
 // Skill Level Animation
 const skillLevels = document.querySelectorAll('.skill-level');
@@ -111,38 +196,29 @@ projectCards.forEach(card => {
     });
 });
 
-// Form Validation and Submission
-const contactForm = document.getElementById('contactForm');
+// Navbar Scroll Effect
+const header = document.querySelector('header');
+let lastScroll = 0;
 
-contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Basic form validation
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const subject = document.getElementById('subject').value.trim();
-    const message = document.getElementById('message').value.trim();
-
-    if (!name || !email || !subject || !message) {
-        alert('Please fill in all fields');
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll <= 0) {
+        header.classList.remove('scroll-up');
         return;
     }
-
-    if (!isValidEmail(email)) {
-        alert('Please enter a valid email address');
-        return;
+    
+    if (currentScroll > lastScroll && !header.classList.contains('scroll-down')) {
+        // Scroll Down
+        header.classList.remove('scroll-up');
+        header.classList.add('scroll-down');
+    } else if (currentScroll < lastScroll && header.classList.contains('scroll-down')) {
+        // Scroll Up
+        header.classList.remove('scroll-down');
+        header.classList.add('scroll-up');
     }
-
-    // Here you would typically send the form data to your backend
-    // For now, we'll just show a success message
-    alert('Thank you for your message! I will get back to you soon.');
-    contactForm.reset();
+    lastScroll = currentScroll;
 });
-
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
 
 // Typing Animation for Hero Section
 const heroTitle = document.querySelector('.hero h1');
@@ -180,45 +256,4 @@ window.addEventListener('mousemove', (e) => {
     const yPos = (clientY / window.innerHeight - 0.5) * 20;
     
     heroImage.style.transform = `translate(${xPos}px, ${yPos}px)`;
-});
-
-// Mobile Navigation
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-const navLinks = document.querySelector('.nav-links');
-
-mobileMenuBtn.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
-    mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
-});
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-        navLinks.classList.remove('active');
-        mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-        mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-    }
-});
-
-// Active Navigation Link
-const sections = document.querySelectorAll('section');
-const navItems = document.querySelectorAll('.nav-links a');
-
-window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (pageYOffset >= sectionTop - 200) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href').slice(1) === current) {
-            item.classList.add('active');
-        }
-    });
 }); 
