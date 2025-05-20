@@ -181,43 +181,6 @@ input:checked + .slider:before {
     color: var(--primary-color);
 }
 
-/* Mobile Theme Switch */
-@media (max-width: 768px) {
-    .theme-switch-wrapper {
-        top: 12px;
-        right: 12px;
-        padding: 4px 10px;
-    }
-
-    .theme-switch {
-        height: 20px;
-        width: 36px;
-    }
-
-    .slider:before {
-        height: 14px;
-        width: 14px;
-        bottom: 3px;
-        left: 3px;
-    }
-
-    input:checked + .slider:before {
-        transform: translateX(16px);
-    }
-
-    .theme-switch-wrapper i {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .theme-switch-wrapper {
-        top: 10px;
-        right: 10px;
-        padding: 3px 8px;
-    }
-}
-
 /* Header & Navigation */
 header {
     position: fixed;
@@ -240,7 +203,6 @@ nav {
     padding: 0 5%;
     max-width: 1400px;
     margin: 0 auto;
-    border: none;
 }
 
 .logo {
@@ -306,30 +268,13 @@ nav {
 }
 
 /* Mobile Navigation */
+.mobile-menu-btn {
+    display: none;
+}
+
 @media (max-width: 768px) {
-    .nav-links {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background-color: var(--bg-color);
-        padding: 1rem;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        transform: translateY(-150%);
-        transition: transform 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: none;
-    }
-
-    [data-theme="dark"] .nav-links {
-        background-color: var(--card-bg);
-        border: none;
-    }
-
-    .nav-links.active {
-        transform: translateY(0);
+    header {
+        padding: 0.8rem 0;
     }
 
     .mobile-menu-btn {
@@ -340,6 +285,78 @@ nav {
         font-size: 1.5rem;
         cursor: pointer;
         padding: 0.5rem;
+        z-index: 1001;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: var(--bg-color);
+        padding: 5rem 2rem 2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        transition: right 0.3s ease;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links a {
+        font-size: 1.1rem;
+        width: 100%;
+        padding: 0.8rem 0;
+    }
+
+    .nav-links a::after {
+        display: none;
+    }
+
+    .nav-links a.active {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    /* Overlay when menu is open */
+    .nav-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .nav-overlay.active {
+        display: block;
+    }
+
+    /* Adjust theme switch position for mobile */
+    .theme-switch-wrapper {
+        position: fixed;
+        top: 1rem;
+        right: 4rem;
+        z-index: 1002;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        width: 100%;
+        max-width: none;
+    }
+
+    .theme-switch-wrapper {
+        right: 3.5rem;
     }
 }
 
@@ -1192,40 +1209,6 @@ footer {
 }
 
 @media (max-width: 768px) {
-    header {
-        padding: 0.8rem 0;
-    }
-
-    .nav-links {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background-color: var(--bg-color);
-        padding: 1rem;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        transform: translateY(-150%);
-        transition: transform 0.3s ease;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        border: none;
-    }
-
-    .nav-links.active {
-        transform: translateY(0);
-    }
-
-    .mobile-menu-btn {
-        display: block;
-        background: none;
-        border: none;
-        color: var(--text-color);
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 0.5rem;
-    }
-
     .hero h1 {
         font-size: 2.5rem;
     }
