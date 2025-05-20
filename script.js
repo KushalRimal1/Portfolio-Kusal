@@ -64,22 +64,32 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 });
 
 // Mobile Navigation
-const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const hamburger = document.querySelector('.hamburger');
 const navLinks = document.querySelector('.nav-links');
+const overlay = document.querySelector('.nav-overlay');
 
-mobileMenuBtn.addEventListener('click', () => {
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
     navLinks.classList.toggle('active');
-    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
-    mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
+    overlay.classList.toggle('active');
+    document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
 });
 
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+overlay.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navLinks.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+});
+
+// Close menu when clicking a link
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
         navLinks.classList.remove('active');
-        mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-        mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-    }
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
 });
 
 // Smooth Scrolling
@@ -93,9 +103,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 block: 'start'
             });
             // Close mobile menu after clicking
-            navLinks.classList.remove('active');
-            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            hamburger.classList.remove('active');
+            hamburger.querySelector('i').classList.add('fa-bars');
+            hamburger.querySelector('i').classList.remove('fa-times');
         }
     });
 });
