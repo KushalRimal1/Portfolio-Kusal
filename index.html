@@ -83,7 +83,11 @@
             </div>
         </div>
         <div class="hero-image" data-aos="fade-left">
-            <img src="hero-photo.jpg" alt="Portrait of Kusal Rimal in a suit, smiling in front of a fountain">
+            <picture>
+                <source media="(max-width: 600px)" srcset="hero-photo-mobile.jpg">
+                <source media="(min-width: 601px)" srcset="hero-photo.jpg">
+                <img src="hero-photo.jpg" alt="Portrait of Kusal Rimal in a suit, smiling in front of a fountain">
+            </picture>
         </div>
     </section>
 
